@@ -1,12 +1,9 @@
 package xyz.rickygao.dishow
 
-import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
 class ServiceInstrumentedTest {
@@ -72,7 +69,7 @@ class ServiceInstrumentedTest {
 
     @Test
     fun testGetCatalogsByCanteen() {
-        val response = Service.getCatalogsByCanteens(103).execute()
+        val response = Service.getCatalogsByCanteen(103).execute()
         assertNotNull(response)
         assertNotNull(response.body())
         assertNotEquals(0, response.body()!!.size)
@@ -103,6 +100,13 @@ class ServiceInstrumentedTest {
         assertNotEquals(0, response.body()!!.size)
     }
 
+    fun testGetCatalogCommentById() {
+        val response = Service.getCatalogCommentById(1).execute()
+        assertNotNull(response)
+        assertNotNull(response.body())
+        assertEquals(1, response.body()!!.id)
+    }
+
     @Test
     fun testGetDishesByCatalogAndName() {
         val response = Service.getDishesByCatalogAndName(10301, "骨汤麻辣烫（荤素同价称斤）").execute()
@@ -110,5 +114,21 @@ class ServiceInstrumentedTest {
         assertNotNull(response.body())
         assertEquals(1, response.body()!!.size)
         assertEquals(1030101, response.body()!![0].id)
+    }
+
+    @Test
+    fun testGetCatalogCommentsByCatalog() {
+        val response = Service.getCatalogCommentsByCatalog(10301).execute()
+        assertNotNull(response)
+        assertNotNull(response.body())
+        assert(response.body()!!.avgStar >= 0)
+    }
+
+    @Test
+    fun testPostCatalogComment() {
+        val response = Service.postCatalogComment(10301, CatalogCommentBody(4)).execute()
+        assertNotNull(response)
+        assertNotNull(response.body())
+        assert(response.body()!!.id >= 0)
     }
 }

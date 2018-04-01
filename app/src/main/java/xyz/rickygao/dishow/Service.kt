@@ -1,10 +1,13 @@
 package xyz.rickygao.dishow
 
+import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import java.math.BigDecimal
 
@@ -49,7 +52,7 @@ interface Service {
     fun getCatalogById(@Path("cid") cid: Int): Call<Catalog>
 
     @GET("/canteens/{cid}/catalogs")
-    fun getCatalogsByCanteens(@Path("cid") cid: Int): Call<List<Catalog>>
+    fun getCatalogsByCanteen(@Path("cid") cid: Int): Call<List<Catalog>>
 
     @GET("/canteens/{cid}/catalogs/name/{name}")
     fun getCatalogsByCanteenAndName(@Path("cid") uid: Int,
@@ -63,37 +66,66 @@ interface Service {
 
     @GET("/catalogs/{cid}/dishes/name/{name}")
     fun getDishesByCatalogAndName(@Path("cid") uid: Int,
-                                    @Path("name") name: String): Call<List<Dish>>
+                                  @Path("name") name: String): Call<List<Dish>>
 
+    @GET("/catalogs/comments/{ccid}")
+    fun getCatalogCommentById(@Path("ccid") ccid: Int): Call<CatalogComment>
+
+    @GET("/catalogs/{cid}/comments")
+    fun getCatalogCommentsByCatalog(@Path("cid") cid: Int): Call<CatalogComments>
+
+    @POST("/catalogs/{cid}/comments")
+    fun postCatalogComment(@Path("cid") cid: Int,
+                           @Body body: CatalogCommentBody): Call<Id>
 }
 
 data class University(
         val id: Int,
         val name: String,
-        val location: String,
-        val longitude: BigDecimal,
-        val latitude: BigDecimal
+        val location: String?,
+        val longitude: BigDecimal?,
+        val latitude: BigDecimal?
 )
 
 data class Canteen(
         val id: Int,
         val name: String,
-        val location: String,
-        val longitude: BigDecimal,
-        val latitude: BigDecimal,
+        val location: String?,
+        val longitude: BigDecimal?,
+        val latitude: BigDecimal?,
         val uid: Int
 )
 
 data class Catalog(
         val id: Int,
         val name: String,
-        val location: String,
+        val location: String?,
         val cid: Int
 )
 
 data class Dish(
         val id: Int,
         val name: String,
-        val price: BigDecimal,
+        val price: BigDecimal?,
         val cid: Int
 )
+
+data class CatalogComment(
+        val id: Int,
+        val star: Int,
+        val detail: String,
+        val cid: Int
+)
+
+data class CatalogComments(
+        @SerializedName("avg_star")
+        val avgStar: Double,
+        val comments: List<CatalogComment>
+)
+
+data class CatalogCommentBody(
+        val star: Int,
+        val detail: String? = null
+)
+
+data class Id(val id: Int)

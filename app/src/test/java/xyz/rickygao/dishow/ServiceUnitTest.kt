@@ -66,7 +66,7 @@ class ServiceUnitTest {
 
     @Test
     fun testGetCatalogsByCanteen() {
-        val response = Service.getCatalogsByCanteens(103).execute()
+        val response = Service.getCatalogsByCanteen(103).execute()
         assertNotNull(response)
         assertNotNull(response.body())
         assertNotEquals(0, response.body()!!.size)
@@ -104,5 +104,29 @@ class ServiceUnitTest {
         assertNotNull(response.body())
         assertEquals(1, response.body()!!.size)
         assertEquals(1030101, response.body()!![0].id)
+    }
+
+    @Test
+    fun testGetCatalogCommentById() {
+        val response = Service.getCatalogCommentById(1).execute()
+        assertNotNull(response)
+        assertNotNull(response.body())
+        assertEquals(1, response.body()!!.id)
+    }
+
+    @Test
+    fun testGetCatalogCommentsByCatalog() {
+        val response = Service.getCatalogCommentsByCatalog(10301).execute()
+        assertNotNull(response)
+        assertNotNull(response.body())
+        assert(response.body()!!.avgStar >= 0)
+    }
+
+    @Test
+    fun testPostCatalogComment() {
+        val response = Service.postCatalogComment(10301, CatalogCommentBody(4)).execute()
+        assertNotNull(response)
+        assertNotNull(response.body())
+        assert(response.body()!!.id >= 0)
     }
 }
