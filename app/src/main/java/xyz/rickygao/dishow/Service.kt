@@ -13,7 +13,7 @@ import java.math.BigDecimal
 
 object ServiceFactory {
 
-    private const val HOST_NAME = "192.168.31.246"
+    private const val HOST_NAME = "172.23.119.27"
     private const val BASE_URL = "http://$HOST_NAME:8080/"
 
     val client = OkHttpClient.Builder().build()

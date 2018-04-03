@@ -18,31 +18,30 @@ class UniversityFragment : Fragment() {
 
     private lateinit var adapter: CanteenAdapter
 
-    private var title: String by Delegates.observable("加载中") { _, _, newValue ->
+    private var title: String by Delegates.observable("") { _, _, newValue ->
         if (!isHidden) (activity as? OnTitleChangeListener)?.onTitleChange(newValue)
     }
 
     fun loadCanteens(universityId: Int) {
+        title = "加载中"
         Service.getUniversityById(universityId).enqueue(object : Callback<University> {
             override fun onFailure(call: Call<University>, t: Throwable) {
                 Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
             }
 
             override fun onResponse(call: Call<University>, response: Response<University>) {
-                response.body()?.let(this@UniversityFragment::loadCanteens)
-            }
-        })
-    }
+                response.body()?.let {
+                    title = it.name
+                    Service.getCanteensByUniversity(it.id).enqueue(object : Callback<List<Canteen>> {
+                        override fun onFailure(call: Call<List<Canteen>>, t: Throwable) {
+                            Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
+                        }
 
-    fun loadCanteens(university: University) {
-        title = university.name
-        Service.getCanteensByUniversity(university.id).enqueue(object : Callback<List<Canteen>> {
-            override fun onFailure(call: Call<List<Canteen>>, t: Throwable) {
-                Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onResponse(call: Call<List<Canteen>>, response: Response<List<Canteen>>) {
-                adapter.items = response.body().orEmpty()
+                        override fun onResponse(call: Call<List<Canteen>>, response: Response<List<Canteen>>) {
+                            adapter.items = response.body().orEmpty()
+                        }
+                    })
+                }
             }
         })
     }
@@ -53,12 +52,20 @@ class UniversityFragment : Fragment() {
             (inflater.inflate(R.layout.fragment_list, container, false) as RecyclerView).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = CanteenAdapter(context as? OnCanteenClickListener).also { this@UniversityFragment.adapter = it }
+                arguments?.getInt(ARG_UNIVERSITY_ID)?.let(this@UniversityFragment::loadCanteens)
             }
 
     override fun onHiddenChanged(hidden: Boolean) {
         if (!hidden) (activity as? OnTitleChangeListener)?.onTitleChange(title)
     }
 
+    companion object {
+        const val ARG_UNIVERSITY_ID = "university_id"
+        @JvmName("newInstance")
+        operator fun invoke(universityId: Int) = UniversityFragment().apply {
+            arguments = Bundle().apply { putInt(ARG_UNIVERSITY_ID, universityId) }
+        }
+    }
 }
 
 class CanteenAdapter(private val listener: OnCanteenClickListener?)

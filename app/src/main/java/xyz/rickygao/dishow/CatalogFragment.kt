@@ -18,31 +18,30 @@ class CatalogFragment : Fragment() {
 
     private lateinit var adapter: DishAdapter
 
-    private var title: String by Delegates.observable("加载中") { _, _, newValue ->
+    private var title: String by Delegates.observable("") { _, _, newValue ->
         if (!isHidden) (activity as? OnTitleChangeListener)?.onTitleChange(newValue)
     }
 
-    fun loadDishes(catalogId: Int) {
+    fun loadCatalog(catalogId: Int) {
+        title = "加载中"
         Service.getCatalogById(catalogId).enqueue(object : Callback<Catalog> {
             override fun onFailure(call: Call<Catalog>, t: Throwable) {
                 Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
             }
 
             override fun onResponse(call: Call<Catalog>, response: Response<Catalog>) {
-                response.body()?.let(this@CatalogFragment::loadDishes)
-            }
-        })
-    }
+                response.body()?.let {
+                    title = it.name
+                    Service.getDishesByCatalog(it.id).enqueue(object : Callback<List<Dish>> {
+                        override fun onFailure(call: Call<List<Dish>>, t: Throwable) {
+                            Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
+                        }
 
-    fun loadDishes(catalog: Catalog) {
-        title = catalog.name
-        Service.getDishesByCatalog(catalog.id).enqueue(object : Callback<List<Dish>> {
-            override fun onFailure(call: Call<List<Dish>>, t: Throwable) {
-                Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onResponse(call: Call<List<Dish>>, response: Response<List<Dish>>) {
-                adapter.items = response.body().orEmpty()
+                        override fun onResponse(call: Call<List<Dish>>, response: Response<List<Dish>>) {
+                            adapter.items = response.body().orEmpty()
+                        }
+                    })
+                }
             }
         })
     }
@@ -53,12 +52,20 @@ class CatalogFragment : Fragment() {
             (inflater.inflate(R.layout.fragment_list, container, false) as RecyclerView).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = DishAdapter(context as? OnDishClickListener).also { this@CatalogFragment.adapter = it }
+                arguments?.getInt(ARG_CATALOG_ID)?.let(this@CatalogFragment::loadCatalog)
             }
 
     override fun onHiddenChanged(hidden: Boolean) {
         if (!hidden) (activity as? OnTitleChangeListener)?.onTitleChange(title)
     }
 
+    companion object {
+        const val ARG_CATALOG_ID = "canteen_id"
+        @JvmName("newInstance")
+        operator fun invoke(catalogId: Int) = CatalogFragment().apply {
+            arguments = Bundle().apply { putInt(ARG_CATALOG_ID, catalogId) }
+        }
+    }
 }
 
 class DishAdapter(private val listener: OnDishClickListener?)

@@ -9,11 +9,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), OnTitleChangeListener, OnCanteenClickListener, OnCatalogClickListener, OnDishClickListener {
 
-    private val universityFragment: UniversityFragment by lazy { UniversityFragment() }
-
-    private val canteenFragment: CanteenFragment by lazy { CanteenFragment() }
-
-    private val catalogFragment: CatalogFragment by lazy { CatalogFragment() }
+    private lateinit var universityFragment: UniversityFragment
+    private lateinit var canteenFragment: CanteenFragment
+    private lateinit var catalogFragment: CatalogFragment
 
     override fun onTitleChange(title: String) {
         toolbar_layout.title = title
@@ -23,7 +21,7 @@ class MainActivity : AppCompatActivity(), OnTitleChangeListener, OnCanteenClickL
         supportFragmentManager
                 .beginTransaction()
                 .hide(universityFragment)
-                .add(R.id.fl, canteenFragment.apply { loadCatalogs(item.id) })
+                .add(R.id.fl, CanteenFragment(item.id).also { canteenFragment = it })
                 .addToBackStack(null)
                 .commit()
     }
@@ -32,7 +30,7 @@ class MainActivity : AppCompatActivity(), OnTitleChangeListener, OnCanteenClickL
         supportFragmentManager
                 .beginTransaction()
                 .hide(canteenFragment)
-                .add(R.id.fl, catalogFragment.apply { loadDishes(item.id) })
+                .add(R.id.fl, CatalogFragment(item.id).also { catalogFragment = it })
                 .addToBackStack(null)
                 .commit()
     }
@@ -48,7 +46,7 @@ class MainActivity : AppCompatActivity(), OnTitleChangeListener, OnCanteenClickL
 
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.fl, universityFragment.apply { loadCanteens(Preference.uid) })
+                .replace(R.id.fl, UniversityFragment(Preference.uid).also { universityFragment = it })
                 .commit()
 
         fab.setOnClickListener { _ -> }

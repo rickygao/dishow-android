@@ -18,31 +18,30 @@ class CanteenFragment : Fragment() {
 
     private lateinit var adapter: CatalogAdapter
 
-    private var title: String by Delegates.observable("加载中") { _, _, newValue ->
+    private var title: String by Delegates.observable("") { _, _, newValue ->
         if (!isHidden) (activity as? OnTitleChangeListener)?.onTitleChange(newValue)
     }
 
-    fun loadCatalogs(canteenId: Int) {
+    fun loadCanteen(canteenId: Int) {
+        title = "加载中"
         Service.getCanteenById(canteenId).enqueue(object : Callback<Canteen> {
             override fun onFailure(call: Call<Canteen>, t: Throwable) {
                 Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
             }
 
             override fun onResponse(call: Call<Canteen>, response: Response<Canteen>) {
-                response.body()?.let(this@CanteenFragment::loadCatalogs)
-            }
-        })
-    }
+                response.body()?.let {
+                    title = it.name
+                    Service.getCatalogsByCanteen(it.id).enqueue(object : Callback<List<Catalog>> {
+                        override fun onFailure(call: Call<List<Catalog>>, t: Throwable) {
+                            Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
+                        }
 
-    fun loadCatalogs(canteen: Canteen) {
-        title = canteen.name
-        Service.getCatalogsByCanteen(canteen.id).enqueue(object : Callback<List<Catalog>> {
-            override fun onFailure(call: Call<List<Catalog>>, t: Throwable) {
-                Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onResponse(call: Call<List<Catalog>>, response: Response<List<Catalog>>) {
-                adapter.items = response.body().orEmpty()
+                        override fun onResponse(call: Call<List<Catalog>>, response: Response<List<Catalog>>) {
+                            adapter.items = response.body().orEmpty()
+                        }
+                    })
+                }
             }
         })
     }
@@ -53,12 +52,20 @@ class CanteenFragment : Fragment() {
             (inflater.inflate(R.layout.fragment_list, container, false) as RecyclerView).apply {
                 layoutManager = LinearLayoutManager(context)
                 adapter = CatalogAdapter(context as? OnCatalogClickListener).also { this@CanteenFragment.adapter = it }
+                arguments?.getInt(ARG_CANTEEN_ID)?.let(this@CanteenFragment::loadCanteen)
             }
 
     override fun onHiddenChanged(hidden: Boolean) {
         if (!hidden) (activity as? OnTitleChangeListener)?.onTitleChange(title)
     }
 
+    companion object {
+        const val ARG_CANTEEN_ID = "canteen_id"
+        @JvmName("newInstance")
+        operator fun invoke(canteenId: Int) = CanteenFragment().apply {
+            arguments = Bundle().apply { putInt(ARG_CANTEEN_ID, canteenId) }
+        }
+    }
 }
 
 class CatalogAdapter(private val listener: OnCatalogClickListener?)
