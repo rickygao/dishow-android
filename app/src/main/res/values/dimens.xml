@@ -6,4 +6,6 @@
     <dimen name="card_margin">8dp</dimen>
     <dimen name="card_elevation">0dp</dimen>
     <dimen name="card_corner_radius">0dp</dimen>
+    <dimen name="text_primary_size">18sp</dimen>
+    <dimen name="text_secondary_size">14sp</dimen>
 </resources>

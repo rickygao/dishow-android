@@ -1,4 +1,4 @@
-package xyz.rickygao.dishow
+package xyz.rickygao.dishow.common
 
 import android.content.Context
 import com.orhanobut.hawk.Hawk
@@ -29,4 +29,6 @@ fun Context.buildHawk() = Hawk.init(this).build()
 
 object Preference {
     var uid: Int by hawk("uid", 1)
+    var username: String? by hawk("username")
+    var password: String? by hawk("password")
 }

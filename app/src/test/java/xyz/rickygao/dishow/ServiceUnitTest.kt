@@ -1,132 +1,68 @@
 package xyz.rickygao.dishow
 
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import xyz.rickygao.dishow.network.CatalogCommentBody
+import xyz.rickygao.dishow.network.Service
 
+@RunWith(JUnit4::class)
 class ServiceUnitTest {
 
     @Test
-    fun testGetUniversityById() {
-        val response = Service.getUniversityById(1).execute()
+    fun testGetUniversityById() = runBlocking {
+        val response = Service.getUniversityById(1).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(1, response.body()!!.id)
+        assertEquals(1, response.id)
     }
 
     @Test
-    fun testGetUniversities() {
-        val response = Service.getUniversities().execute()
+    fun testGetUniversities() = runBlocking {
+        val response = Service.getUniversities().await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertNotEquals(0, response.body()!!.size)
+        assertNotEquals(0, response.size)
     }
 
     @Test
-    fun testGetUniversityByName() {
-        val response = Service.getUniversityByName("天津大学").execute()
+    fun testGetCanteensById() = runBlocking {
+        val response = Service.getCanteenById(101).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(2, response.body()!!.size)
-        assertEquals(1, response.body()!![0].id)
-        assertEquals(2, response.body()!![1].id)
+        assertEquals(101, response.id)
     }
 
     @Test
-    fun testGetCanteensById() {
-        val response = Service.getCanteenById(101).execute()
+    fun testGetCatalogById() = runBlocking {
+        val response = Service.getCatalogById(10301).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(101, response.body()!!.id)
+        assertEquals(10301, response.id)
     }
 
     @Test
-    fun testGetCanteensByUniversity() {
-        val response = Service.getCanteensByUniversity(1).execute()
+    fun testGetDishById() = runBlocking {
+        val response = Service.getDishById(1030101).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertNotEquals(0, response.body()!!.size)
+        assertEquals(1030101, response.id)
     }
 
     @Test
-    fun testGetCanteenByUniversityAndName() {
-        val response = Service.getCanteenByUniversityAndName(1, "梅园").execute()
+    fun testGetCatalogCommentById() = runBlocking {
+        val response = Service.getCatalogCommentById(1).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(1, response.body()!!.size)
-        assertEquals(101, response.body()!![0].id)
+        assertEquals(1, response.id)
     }
 
     @Test
-    fun testGetCatalogById() {
-        val response = Service.getCatalogById(10301).execute()
+    fun testGetCatalogCommentsByCatalog() = runBlocking {
+        val response = Service.getCatalogCommentsByCatalog(10301).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(10301, response.body()!!.id)
     }
 
     @Test
-    fun testGetCatalogsByCanteen() {
-        val response = Service.getCatalogsByCanteen(103).execute()
+    fun testPostCatalogComment() = runBlocking {
+        val response = Service.postCatalogComment(10301, CatalogCommentBody(4)).await()
         assertNotNull(response)
-        assertNotNull(response.body())
-        assertNotEquals(0, response.body()!!.size)
-    }
-
-    @Test
-    fun testGetCatalogsByCanteenAndName() {
-        val response = Service.getCatalogsByCanteenAndName(103, "贾福记骨汤麻辣烫").execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(1, response.body()!!.size)
-        assertEquals(10301, response.body()!![0].id)
-    }
-
-    @Test
-    fun testGetDishById() {
-        val response = Service.getDishById(1030101).execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(1030101, response.body()!!.id)
-    }
-
-    @Test
-    fun testGetDishesByCatalog() {
-        val response = Service.getDishesByCatalog(10301).execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assertNotEquals(0, response.body()!!.size)
-    }
-
-    @Test
-    fun testGetDishesByCatalogAndName() {
-        val response = Service.getDishesByCatalogAndName(10301, "骨汤麻辣烫（荤素同价称斤）").execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(1, response.body()!!.size)
-        assertEquals(1030101, response.body()!![0].id)
-    }
-
-    @Test
-    fun testGetCatalogCommentById() {
-        val response = Service.getCatalogCommentById(1).execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assertEquals(1, response.body()!!.id)
-    }
-
-    @Test
-    fun testGetCatalogCommentsByCatalog() {
-        val response = Service.getCatalogCommentsByCatalog(10301).execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assert(response.body()!!.avgStar >= 0)
-    }
-
-    @Test
-    fun testPostCatalogComment() {
-        val response = Service.postCatalogComment(10301, CatalogCommentBody(4)).execute()
-        assertNotNull(response)
-        assertNotNull(response.body())
-        assert(response.body()!!.id >= 0)
+        assert(response.id >= 0)
     }
 }

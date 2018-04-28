@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">看菜</string>
     <string name="action_settings">设置</string>
+    <string name="drawer_open">打开菜单</string>
+    <string name="drawer_close">关闭菜单</string>
+    <string name="title_signup">注册</string>
+    <string name="title_login">登录</string>
+    <string name="button_cancel">取消</string>
+    <string name="prompt_username">用户名</string>
+    <string name="prompt_password">密码</string>
 </resources>
