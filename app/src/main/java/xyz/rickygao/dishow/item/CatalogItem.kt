@@ -26,7 +26,7 @@ class CatalogItem(val catalog: Catalog) : Item {
                 else -> with(holder.itemView) {
                     item.catalog.let {
                         tv_name.text = it.name
-                        tv_location.text = it.location
+                        tv_location.text = "${it.canteen?.name.orEmpty()}${it.location}"
                         tv_avg_star.text = it.avgStar?.roundFraction()?.let { "平均 $it 分" } ?: "暂无评分"
                         setOnClickListener { v -> v.context.startActivity<CatalogActivity>("id" to it.id) }
                     }

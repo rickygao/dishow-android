@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_canteen.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import android.view.inputmethod.EditorInfo
+import kotlinx.android.synthetic.main.activity_search.*
 import org.jetbrains.anko.coroutines.experimental.asReference
 import org.jetbrains.anko.sdk25.coroutines.onClick
-import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.sdk25.coroutines.onEditorAction
 import org.jetbrains.anko.toast
 import xyz.rickygao.dishow.R
 import xyz.rickygao.dishow.common.awaitAndHandle
@@ -17,33 +16,43 @@ import xyz.rickygao.dishow.common.withItems
 import xyz.rickygao.dishow.item.CatalogItem
 import xyz.rickygao.dishow.network.Service
 
-class CanteenActivity : AppCompatActivity() {
+class SearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_canteen)
+        setContentView(R.layout.activity_search)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val id = intent.extras.getInt("id")
+        val from = intent.extras.getString("from")
 
-        toolbar_layout.title = "正在加载 $id 食堂"
+        val ref = asReference()
 
         rv.layoutManager = LinearLayoutManager(this)
 
-        val ref = asReference()
-        launch(UI) {
-            Service.getCanteenById(id).awaitAndHandle { t ->
-                ref().toast("加载失败 $t")
-                ref().toolbar_layout.title = "加载失败"
-            }?.let {
-                ref().toolbar_layout.title = it.name
-                ref().rv.withItems(it.catalogs.orEmpty().map(::CatalogItem))
+        et_name.onEditorAction { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                btn_search.callOnClick()
             }
         }
 
-        fab.onClick {
-            startActivity<SearchActivity>("id" to id, "from" to "canteen")
+        btn_search.onClick {
+            val name = et_name.text.toString()
+            if (name.isBlank()) {
+                ref().toast("请输入搜索关键字")
+                return@onClick
+            }
+
+            when (from) {
+                "university" -> Service.getCatalogsByUniversityAndName(id, name)
+                "canteen" -> Service.getCatalogsByCanteenAndName(id, name)
+                else -> return@onClick
+            }.awaitAndHandle { t ->
+                ref().toast("加载失败 $t")
+            }?.let {
+                ref().rv.withItems(it.map(::CatalogItem))
+            }
         }
     }
 

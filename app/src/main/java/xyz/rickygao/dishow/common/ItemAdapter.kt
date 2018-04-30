@@ -29,7 +29,7 @@ class ItemAdapter(private val itemManager: ItemManager) : RecyclerView.Adapter<R
     override fun getItemViewType(position: Int) = ItemManager.getViewType(itemManager[position].controller)
 }
 
-fun RecyclerView.withItems(items: List<Item>) {
+fun RecyclerView.withItems(items: List<Item> = listOf()) {
     adapter = ItemAdapter(ItemManager(items.toMutableList()))
 }
 

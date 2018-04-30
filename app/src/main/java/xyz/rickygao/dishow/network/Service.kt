@@ -23,8 +23,14 @@ interface Service {
     @GET("/universities")
     fun getUniversities(): Deferred<List<University>>
 
+    @GET("/universities/{uid}/catalogs")
+    fun getCatalogsByUniversityAndName(@Path("uid") uid: Int, @Query("name") name: String): Deferred<List<Catalog>>
+
     @GET("/canteens/{cid}")
     fun getCanteenById(@Path("cid") cid: Int): Deferred<Canteen>
+
+    @GET("/canteens/{cid}/catalogs")
+    fun getCatalogsByCanteenAndName(@Path("cid") cid: Int, @Query("name") name: String): Deferred<List<Catalog>>
 
     @GET("/catalogs/{cid}")
     fun getCatalogById(@Path("cid") cid: Int): Deferred<Catalog>
@@ -67,7 +73,8 @@ data class Catalog(
         val location: String?,
         @SerializedName("avg_star")
         val avgStar: Double?,
-        val dishes: List<Dish>?
+        val dishes: List<Dish>?,
+        val canteen: Canteen?
 )
 
 data class Dish(

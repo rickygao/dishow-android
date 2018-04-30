@@ -6,14 +6,14 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.view.Menu
-import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_university.*
 import kotlinx.android.synthetic.main.layout_login.view.*
 import kotlinx.android.synthetic.main.layout_nav_header.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.coroutines.experimental.asReference
+import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import xyz.rickygao.dishow.R
 import xyz.rickygao.dishow.common.Preference
@@ -76,7 +76,6 @@ class UniversityActivity : AppCompatActivity() {
                             })
                             .setNegativeButton(R.string.button_cancel, { dialog, _ -> dialog.dismiss() })
                             .show()
-
                 }
                 R.id.nav_login -> {
                     val view = layoutInflater.inflate(R.layout.layout_login, null)
@@ -113,22 +112,15 @@ class UniversityActivity : AppCompatActivity() {
             drawer_layout.closeDrawer(GravityCompat.START)
             true
         }
+
+        fab.onClick {
+            startActivity<SearchActivity>("id" to id, "from" to "university")
+        }
     }
 
     override fun onBackPressed() =
             if (drawer_layout.isDrawerOpen(GravityCompat.START)) drawer_layout.closeDrawer(GravityCompat.START)
             else super.onBackPressed()
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-            when (item.itemId) {
-                R.id.action_settings -> true
-                else -> super.onOptionsItemSelected(item)
-            }
 
     override fun onResume() {
         super.onResume()
