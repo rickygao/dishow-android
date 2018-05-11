@@ -35,15 +35,19 @@ fun RecyclerView.withItems(items: List<Item> = listOf()) {
 
 fun RecyclerView.withItems(init: MutableList<Item>.() -> Unit) = withItems(mutableListOf<Item>().apply(init))
 
-class ItemManager(private val delegated: MutableList<Item> = mutableListOf()) : MutableList<Item> {
+val RecyclerView.items: MutableList<Item> get() = adapter as ItemAdapter
+
+fun RecyclerView.onItems(block: MutableList<Item>.() -> Unit) = items.block()
+
+class ItemManager(private val delegated: MutableList<Item> = mutableListOf()) : MutableList<Item> by delegated {
     var observer: RecyclerView.Adapter<RecyclerView.ViewHolder>? = null
 
     init {
         ensureControllers(delegated)
     }
 
-    companion object ItemControllerManager {
-        private var viewType = 0
+    internal companion object ItemControllerManager {
+        private var size = 0
 
         // controller to view type
         private val c2vt = mutableMapOf<ItemController, Int>()
@@ -54,9 +58,9 @@ class ItemManager(private val delegated: MutableList<Item> = mutableListOf()) : 
         private fun ensureController(item: Item) {
             val controller = item.controller
             if (!c2vt.contains(controller)) {
-                c2vt[controller] = viewType
-                vt2c[viewType] = controller
-                viewType++
+                c2vt[controller] = size
+                vt2c[size] = controller
+                size++
             }
         }
 
@@ -67,31 +71,8 @@ class ItemManager(private val delegated: MutableList<Item> = mutableListOf()) : 
                 ?: throw IllegalStateException("ItemController $controller is not ensured")
 
         fun getController(viewType: Int): ItemController = vt2c[viewType]
-                ?: throw IllegalStateException("ItemController $viewType is unused")
+                ?: throw IllegalStateException("ViewType $viewType is unused")
     }
-
-
-    override val size: Int get() = delegated.size
-
-    override fun contains(element: Item) = delegated.contains(element)
-
-    override fun containsAll(elements: Collection<Item>) = delegated.containsAll(elements)
-
-    override fun get(index: Int): Item = delegated[index]
-
-    override fun indexOf(element: Item) = delegated.indexOf(element)
-
-    override fun isEmpty() = delegated.isEmpty()
-
-    override fun iterator() = delegated.iterator()
-
-    override fun lastIndexOf(element: Item) = delegated.lastIndexOf(element)
-
-    override fun listIterator() = delegated.listIterator()
-
-    override fun listIterator(index: Int) = delegated.listIterator(index)
-
-    override fun subList(fromIndex: Int, toIndex: Int) = delegated.subList(fromIndex, toIndex)
 
     override fun add(element: Item) =
             delegated.add(element).also {

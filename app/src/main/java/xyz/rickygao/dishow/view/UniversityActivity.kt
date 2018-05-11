@@ -106,7 +106,7 @@ class UniversityActivity : AppCompatActivity() {
                     Preference.password = null
                     updateUsername()
                 }
-                R.id.nav_feedback -> Unit
+                R.id.nav_feedback -> toast("请向 rckgao@gmail.com 发送邮件")
             }
 
             drawer_layout.closeDrawer(GravityCompat.START)
